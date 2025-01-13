@@ -8,6 +8,8 @@ import java.io.InputStreamReader;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.groupingBy;
+
 public class Main {
 
     public static void main(String[] args) throws IOException {
@@ -38,7 +40,7 @@ public class Main {
             }
 
             int total = 0;
-
+            int totalInvalidPages = 0;
             for (Pages pageToUpdateN : pagesToUpdate) {
                 boolean validPage = true;
                 List<Rule> validRules = new ArrayList<>();
@@ -72,9 +74,27 @@ public class Main {
                 if(validPage){
                     Integer numberToAdd = pageToUpdateN.pages.get(pageToUpdateN.pages.size() / 2 );
                     total += numberToAdd;
+                } else {
+
+                    List<Integer> correctNumbers = new ArrayList<>();
+                    Map<Integer, Long> collect = validRules.stream()
+                            .collect(groupingBy(rule -> rule.secondNumber, Collectors.counting()));
+
+                    pageToUpdateN.pages.removeAll(collect.keySet());
+                    correctNumbers.add(pageToUpdateN.pages.get(0));
+
+                    collect.entrySet()
+                            .stream()
+                            .sorted(Map.Entry.comparingByValue())
+                            .map(Map.Entry::getKey)
+                            .forEachOrdered(correctNumbers::add);
+
+                    Integer numberToAdd = correctNumbers.get(correctNumbers.size() / 2 );
+                    totalInvalidPages += numberToAdd;
                 }
             }
             System.out.println(total);
+            System.out.println(totalInvalidPages);
             System.out.println("Execution time: " + ( System.currentTimeMillis() - start) + "ms");
         }
 
@@ -100,9 +120,16 @@ public class Main {
             this.secondNumber = secondNumber;
         }
 
-        Integer firstNumber;
-        Integer secondNumber;
+        public Integer firstNumber;
+        public Integer secondNumber;
 
+        @Override
+        public String toString() {
+            return "Rule{" +
+                    "firstNumber=" + firstNumber +
+                    ", secondNumber=" + secondNumber +
+                    '}';
+        }
     }
 
     private static class Pages {
