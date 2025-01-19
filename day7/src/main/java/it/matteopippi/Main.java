@@ -40,6 +40,7 @@ public class Main {
         Long nextNumber = numbers.get(index + 1);
         generateAllPossibleResults(numbers, index + 1, currentValue + nextNumber, results);
         generateAllPossibleResults(numbers, index + 1, currentValue * nextNumber, results);
+        generateAllPossibleResults(numbers, index + 1, Long.valueOf(currentValue.toString() + nextNumber), results);
     }
 
 
